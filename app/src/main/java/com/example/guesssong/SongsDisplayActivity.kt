@@ -15,18 +15,18 @@ import java.util.Stack
 import kotlin.math.abs
 
 @Suppress("DEPRECATION")
-class SongsDisplayActivity : AppCompatActivity(),
+class SongsDisplayActivity: AppCompatActivity(),
             GestureDetector.OnGestureListener
 {
 
     private lateinit var text : TextView
-    private var songsStack: Stack<Song> = Stack()
+    private val songsStack = Stack<Song>()
+    private var songs: ArrayList<Song>? = null
 
     private lateinit var mDetector: GestureDetectorCompat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Make activity full screen
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
             // For Android 11 and above
             WindowInsetsControllerCompat(window, window.decorView).let { controller ->
@@ -44,8 +44,13 @@ class SongsDisplayActivity : AppCompatActivity(),
                     or View.SYSTEM_UI_FLAG_FULLSCREEN)
         }
         setContentView(R.layout.song_item)
-
-        populateSongs()
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            songs = intent.getParcelableArrayListExtra("songs", Song::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            songs = intent.getParcelableArrayListExtra("songs")
+        }
+        songsStack.addAll(songs!!)
         text = findViewById(R.id.tvSongTitle)
         text.text = songsStack.peek().title
 
@@ -56,11 +61,7 @@ class SongsDisplayActivity : AppCompatActivity(),
         return mDetector.onTouchEvent(event) || super.onTouchEvent(event)
     }
 
-    private fun populateSongs() {
-        for (i in 1..10) {
-            songsStack.push(Song(i.toLong(), "Song $i", "Artist $i", 1))
-        }
-    }
+
 
     @SuppressLint("SetTextI18n")
     private fun nextSong() {

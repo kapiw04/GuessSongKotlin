@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     kotlin("kapt")
+    kotlin("plugin.parcelize")
 }
 
 android {
@@ -42,6 +43,8 @@ android {
 dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.mediation.test.suite)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
     val room_version = "2.6.1"
     implementation(libs.androidx.core.ktx)
     implementation("androidx.room:room-common:$room_version")
