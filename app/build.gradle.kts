@@ -43,6 +43,7 @@ android {
 dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.mediation.test.suite)
+    implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
     val room_version = "2.6.1"

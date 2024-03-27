@@ -1,4 +1,4 @@
-package com.example.guesssong
+package com.example.guesssong.activities
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -11,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.example.guesssong.R
+import com.example.guesssong.dataclasses.Song
 import java.util.Stack
 import kotlin.math.abs
 
@@ -52,7 +54,7 @@ class SongsDisplayActivity: AppCompatActivity(),
         }
         songsStack.addAll(songs!!)
         text = findViewById(R.id.tvSongTitle)
-        text.text = songsStack.peek().title
+        text.text = songsStack.peek().toString()
 
         mDetector = GestureDetectorCompat(this, this)
     }
@@ -68,7 +70,7 @@ class SongsDisplayActivity: AppCompatActivity(),
         if (!songsStack.isEmpty()) {
             songsStack.pop()
             if (!songsStack.isEmpty()) {
-                text.text = songsStack.peek().title
+                text.text = songsStack.peek().toString()
             } else {
                 text.text = "No more songs"
             }

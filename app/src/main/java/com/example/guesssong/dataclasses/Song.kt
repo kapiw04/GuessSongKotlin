@@ -1,4 +1,4 @@
-package com.example.guesssong
+package com.example.guesssong.dataclasses
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
