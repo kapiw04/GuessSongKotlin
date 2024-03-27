@@ -26,12 +26,11 @@
         <activity
             android:name=".activities.SongsDisplayActivity"
             android:exported="true"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="landscape"
             tools:ignore="DiscouragedApi" />
         <activity
             android:name=".activities.UploadPlaylistActivity"
             android:exported="true"
-            android:screenOrientation="fullSensor"
             tools:ignore="DiscouragedApi" />
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"

@@ -1,6 +1,13 @@
 package com.example.guesssong.activities
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import android.os.Build
 import android.os.Bundle
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -17,23 +24,67 @@ import java.util.Stack
 import kotlin.math.abs
 
 @Suppress("DEPRECATION")
-class SongsDisplayActivity: AppCompatActivity(),
-            GestureDetector.OnGestureListener
-{
+class SongsDisplayActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
-    private lateinit var text : TextView
+    private lateinit var text: TextView
     private val songsStack = Stack<Song>()
     private var songs: ArrayList<Song>? = null
 
     private lateinit var mDetector: GestureDetectorCompat
+    private lateinit var sensorManager: SensorManager
+    private var accelerometer: Sensor? = null
+
+    enum class NodState {
+        WAITING_FOR_NOD_DOWN,
+        WAITING_FOR_NOD_UP,
+        NOD_DETECTED
+    }
+
+    private var currentNodState = NodState.WAITING_FOR_NOD_DOWN
+
+    private val sensorEventListener = object : SensorEventListener {
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+
+        override fun onSensorChanged(event: SensorEvent) {
+            detectNod(event)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+        fullScreen()
+        setContentView(R.layout.song_item)
+
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
+
+        songsStack.addAll(songs!!)
+        text = findViewById(R.id.tvSongTitle)
+        text.text = songsStack.peek().toString()
+
+        mDetector = GestureDetectorCompat(this, this)
+    }
+
+
+
+    override fun onResume() {
+        super.onResume()
+        sensorManager.registerListener(sensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sensorManager.unregisterListener(sensorEventListener)
+    }
+
+    private fun fullScreen() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // For Android 11 and above
             WindowInsetsControllerCompat(window, window.decorView).let { controller ->
                 controller.hide(WindowInsetsCompat.Type.systemBars())
-                controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                controller.systemBarsBehavior =
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             }
         } else {
             // For legacy versions (Below Android 11)
@@ -46,18 +97,44 @@ class SongsDisplayActivity: AppCompatActivity(),
                     or View.SYSTEM_UI_FLAG_FULLSCREEN)
         }
         setContentView(R.layout.song_item)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             songs = intent.getParcelableArrayListExtra("songs", Song::class.java)
         } else {
             @Suppress("DEPRECATION")
             songs = intent.getParcelableArrayListExtra("songs")
         }
-        songsStack.addAll(songs!!)
-        text = findViewById(R.id.tvSongTitle)
-        text.text = songsStack.peek().toString()
-
-        mDetector = GestureDetectorCompat(this, this)
     }
+
+    fun detectNod(event: SensorEvent) {
+        val axis = event.values[0]
+
+        val thresholdDown = -7.0f
+        val thresholdUp = 2.0f
+
+        when (currentNodState) {
+            NodState.WAITING_FOR_NOD_DOWN -> {
+                if (axis < thresholdDown) {
+                    currentNodState = NodState.WAITING_FOR_NOD_UP
+                }
+            }
+            NodState.WAITING_FOR_NOD_UP -> {
+                if (axis > thresholdUp) {
+                    onNodDetected()
+                    currentNodState = NodState.WAITING_FOR_NOD_DOWN
+                }
+            }
+            NodState.NOD_DETECTED -> {
+                // Change color of the background
+
+            }
+        }
+    }
+
+    private fun onNodDetected() {
+        nextSong()
+        currentNodState = NodState.WAITING_FOR_NOD_DOWN
+    }
+
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return mDetector.onTouchEvent(event) || super.onTouchEvent(event)
@@ -72,7 +149,8 @@ class SongsDisplayActivity: AppCompatActivity(),
             if (!songsStack.isEmpty()) {
                 text.text = songsStack.peek().toString()
             } else {
-                text.text = "No more songs"
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
             }
         }
     }

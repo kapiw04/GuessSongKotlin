@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
                     .permitAll().build()
                 StrictMode.setThreadPolicy(policy)
                 val spotifyAPI = SpotifyAPI(this)
-                val songs: List<Song> = spotifyAPI.getTracksToPlay(5)
+                val songs: List<Song> = spotifyAPI.getTracksToPlay(12)
                 val intent = Intent(this, SongsDisplayActivity::class.java)
                 intent.putParcelableArrayListExtra("songs", ArrayList(songs))
                 startActivity(intent)
