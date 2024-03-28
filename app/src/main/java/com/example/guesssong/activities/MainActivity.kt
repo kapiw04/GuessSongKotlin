@@ -2,13 +2,12 @@ package com.example.guesssong.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.StrictMode
-import android.os.StrictMode.ThreadPolicy
+import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.example.guesssong.R
-import com.example.guesssong.dataclasses.Song
-import com.example.guesssong.utils.SpotifyAPI
+import java.io.FileNotFoundException
+import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,26 +18,23 @@ class MainActivity : AppCompatActivity() {
         val uploadButton: Button = findViewById(R.id.btnUploadPlaylist)
 
         startButton.setOnClickListener {
-            val SDK_INT: Int = android.os.Build.VERSION.SDK_INT
-            if (SDK_INT > 8) {
-                val policy = ThreadPolicy.Builder()
-                    .permitAll().build()
-                StrictMode.setThreadPolicy(policy)
-                val spotifyAPI = SpotifyAPI(this)
-                val songs: List<Song> = spotifyAPI.getTracksToPlay(12)
-                val intent = Intent(this, SongsDisplayActivity::class.java)
-                intent.putParcelableArrayListExtra("songs", ArrayList(songs))
-                startActivity(intent)
-            }
+            handleStartButton()
         }
 
         uploadButton.setOnClickListener {
-            val intent = Intent(this, UploadPlaylistActivity::class.java)
-            startActivity(intent)
+            handleUploadButton()
         }
     }
 
+    private fun handleStartButton() {
+        val intent = Intent(this, PickPlaylistActivity::class.java)
+        startActivity(intent)
+    }
 
+    private fun handleUploadButton() {
+        val intent = Intent(this, UploadPlaylistActivity::class.java)
+        startActivity(intent)
+    }
 }
 
 

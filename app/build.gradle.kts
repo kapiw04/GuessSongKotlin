@@ -46,11 +46,11 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
-    val room_version = "2.6.1"
+    val roomVersion = "2.6.1"
     implementation(libs.androidx.core.ktx)
-    implementation("androidx.room:room-common:$room_version")
-    annotationProcessor("androidx.room:room-compiler:$room_version")
-    kapt("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-common:$roomVersion")
+    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)

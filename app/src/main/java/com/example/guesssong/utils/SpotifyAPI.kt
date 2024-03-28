@@ -3,6 +3,7 @@ package com.example.guesssong.utils
 import android.content.Context
 import com.example.guesssong.dataclasses.Song
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.Credentials
@@ -10,6 +11,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
+
 
 class SpotifyAPI(private val context: Context) {
     private fun readCreds(): String {
@@ -20,7 +22,7 @@ class SpotifyAPI(private val context: Context) {
             reader.forEachLine { lineList.add(it) }
         }
 
-        return Credentials.basic(lineList[0], lineList[1])  // Base64 encoded client_id:client_secret
+        return Credentials.basic(lineList[0], lineList[1])
     }
 
     private fun getToken(): String {
@@ -49,7 +51,7 @@ class SpotifyAPI(private val context: Context) {
         val token = "Bearer ${getToken()}"
         val client = OkHttpClient()
         val request = Request.Builder()
-            .url("https://api.spotify.com/v1/playlists/$playlistId/tracks")
+            .url("https://api.spotify.com/v1/playlists/$playlistId/")
             .addHeader("Authorization", token)
             .addHeader("Accept", "application/json")
             .addHeader("Content-Type", "application/json")
@@ -61,8 +63,13 @@ class SpotifyAPI(private val context: Context) {
             val moshi = Moshi.Builder()
                 .add(KotlinJsonAdapterFactory())
                 .build()
-            val jsonAdapter = moshi.adapter(TracksResponse::class.java)
-            val tracksResponse = jsonAdapter.fromJson(response.body!!.string())
+            val jsonAdapter = moshi.adapter(SpotifyResponse::class.java)
+            val responseStr = response.body!!.string()
+            val spotifyResponse = jsonAdapter.fromJson(responseStr)
+
+            val tracksResponse = spotifyResponse?.tracks
+            val playlistName = spotifyResponse?.name ?: "playlist"
+
             saveToJson(tracksResponse?.items?.map {
                 Song(
                     id = 0L,
@@ -70,7 +77,7 @@ class SpotifyAPI(private val context: Context) {
                     artist = it.track.artists.joinToString(", ") { artist -> artist.name },
                     playlistId = 0L
                 )
-            } ?: listOf())
+            } ?: listOf(), playlistName)
         }
     }
 
@@ -80,31 +87,51 @@ class SpotifyAPI(private val context: Context) {
         return regex.find(url)!!.groupValues[1]
     }
 
-    fun getTracksToPlay(amount: Int = 10): List<Song> {
-        val tracks = readFromJson()
+    fun getTracksToPlay(playlistName: String, amount: Int = 10): List<Song> {
+        val tracks = readFromJson(playlistName)
         val _amount: Int = if (amount > tracks.size) tracks.size else amount
         val shuffledTracks = tracks.shuffled()
 
         return shuffledTracks.take(_amount)
     }
 
-    private fun saveToJson(songs: List<Song>) {
+    private fun saveToJson(songs: List<Song>, playlistName: String) {
         val gson = Gson()
-        val json = gson.toJson(songs)
-
-        val file = context.openFileOutput("songs.json", Context.MODE_PRIVATE)
-        file.write(json.toByteArray())
-        file.close()
+        val songsJson = gson.toJson(songs)
+        savePlaylistName(playlistName)
+        saveSongsToPlaylist(playlistName, songsJson)
     }
 
-    private fun readFromJson(): List<Song> {
-        val file = context.openFileInput("songs.json")
+    private fun saveSongsToPlaylist(playlistName: String, json: String) {
+        val playlistFile = context.openFileOutput("$playlistName.json", Context.MODE_PRIVATE)
+        playlistFile.write(json.toByteArray())
+        playlistFile.close()
+    }
+
+    private fun readFromJson(playlistName: String): List<Song> {
+        val file = context.openFileInput("$playlistName.json")
         val text = file.bufferedReader().use { it.readText() }
         val gson = Gson()
         return gson.fromJson(text, Array<Song>::class.java).toList()
     }
+
+    private fun savePlaylistName(playlistName: String) {
+        val playlistFile = context.applicationContext.getFileStreamPath("playlists.json")
+        val existingPlaylists = if (playlistFile.exists()) {
+            val text = playlistFile.bufferedReader().use { it.readText() }
+            Gson().fromJson(text, object : TypeToken<List<String>>() {}.type)
+        } else {
+            listOf<String>()
+        }
+        val updatedPlaylists: List<String> = existingPlaylists + playlistName
+        val jsonToWrite = Gson().toJson(updatedPlaylists)
+        context.applicationContext.openFileOutput("playlists.json", Context.MODE_PRIVATE).use {
+            it.write(jsonToWrite.toByteArray())
+        }
+    }
 }
 
+data class SpotifyResponse(val tracks: TracksResponse, val name: String)
 data class TracksResponse(val items: List<Item>)
 data class Item(val track: Track)
 data class Track(val name: String, val artists: List<Artist>)
