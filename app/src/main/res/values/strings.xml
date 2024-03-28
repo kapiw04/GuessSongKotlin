@@ -3,4 +3,15 @@
     <string name="enter_the_url_here">Enter the URL here</string>
     <string name="upload_playlist">Upload Playlist</string>
     <string name="start">Start</string>
+
+    <string-array name="songsPerGame">
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+    </string-array>
 </resources>

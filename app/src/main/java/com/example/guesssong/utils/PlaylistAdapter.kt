@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.guesssong.R
 import com.example.guesssong.activities.SongsDisplayActivity
@@ -37,7 +38,9 @@ class PlaylistAdapter(private val playlistNames: List<String>): RecyclerView.Ada
 
     private fun handlePlaylistClick(context: Context, playlistName: String) {
         val spotifyAPI = SpotifyAPI(context)
-        val songs: List<Song> = spotifyAPI.getTracksToPlay(playlistName, 10)
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val amount = preferences.getString("songsPerGame", "5") ?: "5"
+        val songs: List<Song> = spotifyAPI.getTracksToPlay(playlistName, amount.toInt())
 
         val intent = Intent(context, SongsDisplayActivity::class.java).apply {
             putParcelableArrayListExtra("songs", ArrayList(songs))

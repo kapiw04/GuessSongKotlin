@@ -43,14 +43,12 @@ android {
 dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.mediation.test.suite)
+    implementation("com.google.android.material:material:1.4.0")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
-    val roomVersion = "2.6.1"
+    implementation("androidx.preference:preference-ktx:1.2.0")
     implementation(libs.androidx.core.ktx)
-    implementation("androidx.room:room-common:$roomVersion")
-    annotationProcessor("androidx.room:room-compiler:$roomVersion")
-    kapt("androidx.room:room-compiler:$roomVersion")
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)

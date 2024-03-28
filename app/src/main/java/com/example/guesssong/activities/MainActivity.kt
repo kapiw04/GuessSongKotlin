@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import com.example.guesssong.R
 import java.io.FileNotFoundException
@@ -16,6 +17,7 @@ class MainActivity : AppCompatActivity() {
 
         val startButton: Button = findViewById(R.id.btnStart)
         val uploadButton: Button = findViewById(R.id.btnUploadPlaylist)
+        val settingsButton: ImageButton = findViewById(R.id.ibtnSettings)
 
         startButton.setOnClickListener {
             handleStartButton()
@@ -23,6 +25,10 @@ class MainActivity : AppCompatActivity() {
 
         uploadButton.setOnClickListener {
             handleUploadButton()
+        }
+
+        settingsButton.setOnClickListener {
+            handleSettingsButton()
         }
     }
 
@@ -33,6 +39,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleUploadButton() {
         val intent = Intent(this, UploadPlaylistActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun handleSettingsButton() {
+        val intent = Intent(this, SettingsActivity::class.java)
         startActivity(intent)
     }
 }

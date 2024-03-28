@@ -1,0 +1,12 @@
+<!-- res/xml/preferences.xml -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Gameplay Settings">
+        <ListPreference
+            android:key="songsPerGame"
+            android:title="Songs Per Game"
+            android:summary="Number of songs to play in a game"
+            android:entries="@array/songsPerGame"
+            android:entryValues="@array/songsPerGame"
+            android:defaultValue="5" />
+    </PreferenceCategory>
+</PreferenceScreen>
