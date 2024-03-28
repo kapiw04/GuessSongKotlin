@@ -8,5 +8,13 @@
             android:entries="@array/songsPerGame"
             android:entryValues="@array/songsPerGame"
             android:defaultValue="5" />
+
+        <ListPreference
+            android:key="timePerSong"
+            android:title="Time Per Song"
+            android:summary="Time to guess a song"
+            android:entries="@array/timePerSong"
+            android:entryValues="@array/timePerSong"
+            android:defaultValue="60 sec" />
     </PreferenceCategory>
 </PreferenceScreen>

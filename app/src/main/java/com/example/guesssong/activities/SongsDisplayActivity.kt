@@ -3,12 +3,14 @@ package com.example.guesssong.activities
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -18,17 +20,32 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import com.example.guesssong.R
 import com.example.guesssong.dataclasses.Song
+import com.example.guesssong.utils.CountDownTimer
 import java.util.Stack
 import kotlin.math.abs
+
 
 @Suppress("DEPRECATION")
 class SongsDisplayActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
-    private lateinit var text: TextView
+    private lateinit var timeLeftText: TextView
+    private lateinit var songText: TextView
     private val songsStack = Stack<Song>()
     private var songs: ArrayList<Song>? = null
+    private var timer: CountDownTimer = object : CountDownTimer(5000) {
+        override fun onFinish() {
+            this.reset()
+            nextSong()
+        }
+    }
+    private lateinit var preferences: SharedPreferences
+    private lateinit var timeForSongString: String
+    private var dontStartTimer: Boolean = false
+    private var timeForSong: Long = 0
 
     private lateinit var mDetector: GestureDetectorCompat
     private lateinit var sensorManager: SensorManager
@@ -53,29 +70,51 @@ class SongsDisplayActivity : AppCompatActivity(), GestureDetector.OnGestureListe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fullScreen()
-        setContentView(R.layout.song_item)
+        setContentView(R.layout.activity_songs_display)
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
-
         songsStack.addAll(songs!!)
-        text = findViewById(R.id.tvSongTitle)
-        text.text = songsStack.peek().toString()
+        songText = findViewById(R.id.tvSongTitle)
+        songText.text = songsStack.peek().toString()
 
         mDetector = GestureDetectorCompat(this, this)
+
+        timeLeftText = findViewById(R.id.tvTimeLeft)
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        timeForSongString =
+            preferences.getString("timePerSong", "60 sec")!!.split(" ")[0]
+        dontStartTimer = timeForSongString.contains("off")
+        timeForSong = if (!dontStartTimer) timeForSongString.toLong() * 1000 else 0
+
+        Log.d("Songs", timeForSong.toString())
+        Log.d("Songs", dontStartTimer.toString())
+        Log.d("Songs", timeForSongString)
+        Log.d("Songs", preferences.all.toString())
+
+        startTimer()
     }
-
-
 
     override fun onResume() {
         super.onResume()
-        sensorManager.registerListener(sensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)
+        sensorManager.registerListener(
+            sensorEventListener,
+            accelerometer,
+            SensorManager.SENSOR_DELAY_NORMAL
+        )
     }
 
     override fun onPause() {
         super.onPause()
         sensorManager.unregisterListener(sensorEventListener)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        sensorManager.unregisterListener(sensorEventListener)
+        timer.stop()
     }
 
     private fun fullScreen() {
@@ -96,7 +135,7 @@ class SongsDisplayActivity : AppCompatActivity(), GestureDetector.OnGestureListe
                     or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     or View.SYSTEM_UI_FLAG_FULLSCREEN)
         }
-        setContentView(R.layout.song_item)
+        setContentView(R.layout.activity_songs_display)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             songs = intent.getParcelableArrayListExtra("songs", Song::class.java)
         } else {
@@ -117,12 +156,14 @@ class SongsDisplayActivity : AppCompatActivity(), GestureDetector.OnGestureListe
                     currentNodState = NodState.WAITING_FOR_NOD_UP
                 }
             }
+
             NodState.WAITING_FOR_NOD_UP -> {
                 if (axis > thresholdUp) {
                     onNodDetected()
                     currentNodState = NodState.WAITING_FOR_NOD_DOWN
                 }
             }
+
             NodState.NOD_DETECTED -> {
                 // Change color of the background
 
@@ -140,14 +181,50 @@ class SongsDisplayActivity : AppCompatActivity(), GestureDetector.OnGestureListe
         return mDetector.onTouchEvent(event) || super.onTouchEvent(event)
     }
 
+    private fun updateTimer(timeLeft: Long) {
+        timeLeftText.text = formatTime(timeLeft)
+    }
 
+    private fun formatTime(time: Long): String {
+        if (dontStartTimer) {
+            return ""
+        }
+        val seconds = time / 1000
+        return "$seconds"
+    }
+
+    private fun startTimer() {
+        if (dontStartTimer)
+        {
+            Log.d("Songs", "Timer not started") // doesn't get logged
+            return
+        }
+        updateTimer(timeForSong)
+        timer = object : CountDownTimer(timeForSong) {
+            override fun tick(timeLeft: Long) {
+                runOnUiThread {
+                    updateTimer(timeLeft)
+                    Log.d("Songs", timeLeft.toString()) // doesn't get logged
+                }
+            }
+
+            override fun onFinish() {
+                runOnUiThread {
+                    nextSong()
+                }
+            }
+        }
+        timer.start(lifecycleScope)
+    }
 
     @SuppressLint("SetTextI18n")
     private fun nextSong() {
+        timer.reset()
         if (!songsStack.isEmpty()) {
             songsStack.pop()
             if (!songsStack.isEmpty()) {
-                text.text = songsStack.peek().toString()
+                startTimer()
+                songText.text = songsStack.peek().toString()
             } else {
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
