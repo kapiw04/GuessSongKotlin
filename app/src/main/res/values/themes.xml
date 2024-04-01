@@ -3,7 +3,20 @@
     <style name="Base.Theme.GuessSong" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/colorPrimaryLight</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryVariantLight</item>
+        <item name="colorSecondary">@color/colorSecondaryLight</item>
+        <item name="colorOnPrimary">@color/colorOnPrimaryLight</item>
+        <item name="colorOnSecondary">@color/colorOnSecondaryLight</item>
+        <item name="android:windowBackground">@color/colorPrimaryLight</item>
     </style>
+
+    <style name="Button.Main" parent="Widget.Material3.Button">
+        <item name="android:textColor">@color/colorOnPrimaryDark</item>
+        <item name="android:backgroundTint">@color/colorSecondaryDark</item>
+        <item name="android:elevation">8dp</item>
+    </style>
+
 
     <style name="Theme.GuessSong" parent="Base.Theme.GuessSong" />
 </resources>

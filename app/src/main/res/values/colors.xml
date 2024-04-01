@@ -1,7 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#173B65</color>
-    <color name="colorAccent">#FD8426</color>
-    <color name="colorPrimaryDark">#3E3149</color>
-    <color name="colorSecondary">#74D0C3</color>
+    <!--  Dark Colors Palette  -->
+    <color name="colorPrimaryDark">#173B65</color>
+    <color name="colorPrimaryVariantDark">#02244D</color>
+    <color name="colorSecondaryDark">#FD8426</color>
+    <color name="colorOnPrimaryDark">#F5F5F5</color>
+    <color name="colorOnSecondaryDark">#1E1E1E</color>
+
+    <!--  Light Colors Palette  -->
+    <color name="colorPrimaryLight">#D1EFEB</color>
+    <color name="colorPrimaryVariantLight">#C3D5EB</color>
+    <color name="colorSecondaryLight">#FC4929</color>
+    <color name="colorOnPrimaryLight">#1E1E1E</color>
+    <color name="colorOnSecondaryLight">#F5F5F5</color>
+
+    <!--    Universal-->
+    <color name="colorLight">#F5F5F5</color>
+    <color name="colorDark">#1E1E1E</color>
+
+
 </resources>

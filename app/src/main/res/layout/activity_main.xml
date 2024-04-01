@@ -9,6 +9,7 @@
         android:id="@+id/btnStart"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
+        android:theme="@style/Button.Main"
         android:text="@string/start"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -17,6 +18,7 @@
 
     <Button
         android:id="@+id/btnUploadPlaylist"
+        android:theme="@style/Button.Main"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:text="@string/upload_playlist"
