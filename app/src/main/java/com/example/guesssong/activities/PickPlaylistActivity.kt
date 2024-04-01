@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.guesssong.databinding.ActivityPickPlaylistBinding
 import com.example.guesssong.dataclasses.Playlist
 import com.example.guesssong.utils.PlaylistAdapter
@@ -38,7 +38,7 @@ class PickPlaylistActivity : AppCompatActivity(){
         playlistAdapter = PlaylistAdapter(
             PriorityList(playlists)
         )
-        binding.rvPlaylists.layoutManager = LinearLayoutManager(this)
+        binding.rvPlaylists.layoutManager = GridLayoutManager(this, 2)
         binding.rvPlaylists.adapter = playlistAdapter
     }
 

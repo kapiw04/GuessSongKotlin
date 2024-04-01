@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="padding">16dp</dimen>
+    <dimen name="margin">5dp</dimen>
+    <dimen name="ppa_text_size">20sp</dimen>
+    <dimen name="frame">5dp</dimen>
+</resources>
