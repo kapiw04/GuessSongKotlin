@@ -16,9 +16,9 @@ import com.example.guesssong.activities.SongsDisplayActivity
 import com.example.guesssong.dataclasses.Playlist
 import com.example.guesssong.dataclasses.Song
 
-class PlaylistAdapter(private val playlistNames: PriorityList<Playlist>) :
+class PlaylistAdapter(private val playlists: PriorityList<Playlist>) :
     RecyclerView.Adapter<PlaylistAdapter.PlaylistViewHolder>() {
-    private var playlistNamesList: List<Playlist> = playlistNames.toList()
+    private var playlistsList: List<Playlist> = playlists.toList()
 
     class PlaylistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val playlistName: TextView = itemView.findViewById(R.id.tvPlaylistName)
@@ -32,19 +32,19 @@ class PlaylistAdapter(private val playlistNames: PriorityList<Playlist>) :
     }
 
     override fun getItemCount(): Int {
-        return playlistNames.toList().size
+        return playlists.toList().size
     }
 
     override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
-        Log.d("playlists", "Playlists: $playlistNames")
+        Log.d("playlists", "Playlists: $playlists")
 
-        holder.playlistName.text = playlistNamesList[position].name
+        holder.playlistName.text = playlistsList[position].name
         Glide.with(holder.itemView.context)
-            .load(playlistNamesList[position].image)
+            .load(playlistsList[position].image)
             .override(getSizeOfImage(holder.itemView.context).toInt(), getSizeOfImage(holder.itemView.context).toInt())
             .into(holder.playlistImage)
         holder.itemView.setOnClickListener {
-            handlePlaylistClick(holder.itemView.context, playlistNamesList[position])
+            handlePlaylistClick(holder.itemView.context, playlistsList[position])
         }
     }
 
@@ -64,8 +64,11 @@ class PlaylistAdapter(private val playlistNames: PriorityList<Playlist>) :
         val intent = Intent(context, SongsDisplayActivity::class.java).apply {
             putParcelableArrayListExtra("songs", ArrayList(songs))
         }
-        playlistNames.moveToFront(playlist)
-        notifyDataSetChanged()
+        val oldIndex = playlistsList.indexOf(playlist)
+        playlists.moveToFront(playlist)
+        playlistsList = playlists.toList()
+        JsonManager(context).updatePlaylistFile(playlistsList)
+        notifyItemRangeChanged(0, oldIndex + 1)
         context.startActivity(intent)
     }
 }
