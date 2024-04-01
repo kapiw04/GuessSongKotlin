@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.guesssong.databinding.ActivityPickPlaylistBinding
 import com.example.guesssong.utils.PlaylistAdapter
+import com.example.guesssong.utils.PriorityList
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.FileNotFoundException
@@ -31,7 +32,7 @@ class PickPlaylistActivity : AppCompatActivity(){
         }
 
         playlistAdapter = PlaylistAdapter(
-            playlists
+            PriorityList(playlists)
         )
         binding.rvPlaylists.layoutManager = LinearLayoutManager(this)
         binding.rvPlaylists.adapter = playlistAdapter
