@@ -1,15 +1,19 @@
 package com.example.guesssong.activities
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.guesssong.databinding.ActivityPickPlaylistBinding
+import com.example.guesssong.dataclasses.Playlist
 import com.example.guesssong.utils.PlaylistAdapter
 import com.example.guesssong.utils.PriorityList
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.io.File
+import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.IOException
 
@@ -23,7 +27,7 @@ class PickPlaylistActivity : AppCompatActivity(){
         binding = ActivityPickPlaylistBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val playlists = readPlaylistNames()
+        val playlists = readPlaylists(this)
 
         if (playlists.isEmpty()) {
             val intent = Intent(this, UploadPlaylistActivity::class.java)
@@ -38,18 +42,23 @@ class PickPlaylistActivity : AppCompatActivity(){
         binding.rvPlaylists.adapter = playlistAdapter
     }
 
-    private fun readPlaylistNames(): List<String> {
+    private fun readPlaylists(context: Context): List<Playlist>{
         val fileName = "playlists.json"
-        val names: List<String> = try {
-            val json = applicationContext.openFileInput(fileName).bufferedReader().use { it.readText() }
-            Gson().fromJson(json, object : TypeToken<List<String>>() {}.type)
+        val file = File(context.filesDir, fileName)
+        val jsonString: String = try {
+            FileInputStream(file).bufferedReader().use {
+                it.readText()
+            }
         } catch (e: FileNotFoundException) {
-            listOf()
+            return emptyList()
         } catch (e: IOException) {
-            listOf()
+            return emptyList()
         }
 
-        return names
+        val gson = Gson()
+        val listType = object : TypeToken<List<Playlist>>() {}.type
+        return gson.fromJson(jsonString, listType)
     }
+
 
 }
